@@ -1,0 +1,1 @@
+from .vietocr_process import Predictor

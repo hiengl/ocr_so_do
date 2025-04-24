@@ -1,0 +1,245 @@
+craft:
+  weights_path: "weights/craft/craft_mlt_25k.pth"
+  text_threshold: 0.7
+  link_threshold: 0.4
+  low_text: 0.4
+  canvas_size: 1280
+  mag_ratio: 1.5
+  poly: False
+
+vietocr:
+  weights_path: "weights/vietocr/vgg_seq2seq.pth"
+  config: "vgg_transformer"
+  vocab: "aAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆfFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTuUùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ0123456789!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ "
+  models:
+    backbone: vgg19_bn
+    cnn:
+        # pooling stride size
+        ss:
+            - [2, 2]
+            - [2, 2]
+            - [2, 1]
+            - [2, 1]
+            - [1, 1]
+        # pooling kernel size
+        ks:
+            - [2, 2]
+            - [2, 2]
+            - [2, 1]
+            - [2, 1]
+            - [1, 1]
+        # dim of ouput feature map
+        hidden: 256
+
+    seq_modeling: seq2seq
+    transformer:
+        encoder_hidden: 256
+        decoder_hidden: 256
+        img_channel: 256
+        decoder_embedded: 256
+        dropout: 0.1
+
+  dataset:
+      image_height: 32
+      image_min_width: 32
+      image_max_width: 512
+
+batch_size: 16
+num_threads: 8
+temp_dir: "data/temp"
+device: "mps"  # Options: "cpu", "cuda", "mps"
+
+fields:
+  - name: "Tên giấy tờ"
+    key: "ten_giay_to"
+    type: "string"
+    description: "Tên của giấy chứng nhận quyền sử dụng đất, thường được ghi ở đầu trang bằng chữ in hoa, ví dụ: 'GIẤY CHỨNG NHẬN QUYỀN SỬ DỤNG ĐẤT, QUYỀN SỞ HỮU NHÀ Ở VÀ TÀI SẢN KHÁC GẮN LIỀN VỚI ĐẤT'."
+  - name: "Người sử dụng đất"
+    key: "nguoi_su_dung_dat"
+    type: "array"
+    description: "Danh sách các cá nhân hoặc tổ chức được cấp quyền sử dụng đất, thường được ghi ở phần đầu của giấy chứng nhận, sau tên giấy tờ."
+    subfields:
+      - name: "Họ tên"
+        key: "ho_ten"
+        type: "string"
+        description: "Họ và tên đầy đủ của người sử dụng đất, ví dụ: 'Nguyễn Văn A' hoặc 'Công ty TNHH ABC'."
+      - name: "Năm sinh"
+        key: "nam_sinh"
+        type: "string"
+        description: "Năm sinh của cá nhân sử dụng đất, thường ở định dạng YYYY, ví dụ: '1980'. Nếu là tổ chức thì để trống."
+      - name: "CCCD"
+        key: "cccd"
+        type: "string"
+        description: "Số Căn cước công dân (hoặc Chứng minh nhân dân) của cá nhân sử dụng đất, ví dụ: '123456789'. Nếu là tổ chức thì để trống."
+      - name: "Địa chỉ thường trú"
+        key: "dia_chi_thuong_tru"
+        type: "string"
+        description: "Địa chỉ thường trú của người sử dụng đất, ví dụ: '123 Đường Láng, Đống Đa, Hà Nội'."
+  - name: "Mã số đỏ"
+    key: "ma_so_do"
+    type: "string"
+    description: "Mã số của giấy chứng nhận, thường được ghi ở góc dưới bên phải hoặc góc dưới bên trái của trang 1, ví dụ: 'AA 123456' hoặc 'DM 98765432'."
+  - name: "Thửa đất"
+    key: "thua_dat"
+    type: "object"
+    description: "Thông tin chi tiết về thửa đất được cấp quyền sử dụng, thường được ghi ở phần giữa của giấy chứng nhận."
+    subfields:
+      - name: "Số thửa đất"
+        key: "so_thua_dat"
+        type: "string"
+        description: "Số hiệu của thửa đất, ví dụ: '123'."
+      - name: "Số tờ bản đồ"
+        key: "so_to_ban_do"
+        type: "string"
+        description: "Số tờ bản đồ địa chính chứa thửa đất, ví dụ: '45'."
+      - name: "Địa chỉ"
+        key: "dia_chi"
+        type: "string"
+        description: "Địa chỉ cụ thể của thửa đất, ví dụ: 'Thôn 5, Xã ABC, Huyện XYZ, Tỉnh KLM'."
+      - name: "Diện tích"
+        key: "dien_tich"
+        type: "string"
+        description: "Diện tích của thửa đất bằng số, đơn vị đo là m2, ví dụ: '500 m2'."
+      - name: "Diện tích bằng chữ"
+        key: "dien_tich_bang_chu"
+        type: "string"
+        description: "Diện tích của thửa đất viết bằng chữ, ví dụ: 'Năm trăm mét vuông'."
+      - name: "Loại đất"
+        key: "loai_dat"
+        type: "array"
+        description: "Danh sách các loại đất của thửa đất, ví dụ: 'Đất thổ cư', 'Đất nông nghiệp'."
+        subfields:
+          - name: "Loại đất"
+            key: "loai_dat_item"
+            type: "string"
+            description: "Tên loại đất, ví dụ: 'Đất thổ cư' hoặc 'Đất nông nghiệp'."
+      - name: "Hình thức sử dụng"
+        key: "hinh_thuc_su_dung"
+        type: "string"
+        description: "Hình thức sử dụng đất, ví dụ: 'Riêng' hoặc 'Chung'."
+      - name: "Mục đích sử dụng"
+        key: "muc_dich_su_dung"
+        type: "array"
+        description: "Danh sách các mục đích sử dụng đất cùng diện tích tương ứng, ví dụ: 'Đất ở: 200 m2', 'Đất trồng cây: 300 m2'."
+        subfields:
+          - name: "Mục đích"
+            key: "muc_dich"
+            type: "string"
+            description: "Mục đích sử dụng đất, ví dụ: 'Đất ở' hoặc 'Đất trồng cây lâu năm'."
+          - name: "Diện tích"
+            key: "dien_tich"
+            type: "string"
+            description: "Diện tích tương ứng với mục đích sử dụng, ví dụ: '200 m2'."
+      - name: "Thời hạn sử dụng"
+        key: "thoi_han_su_dung"
+        type: "array"
+        description: "Danh sách thời hạn sử dụng đất theo từng loại đất, ví dụ: 'Đất thổ cư: Lâu dài', 'Đất nông nghiệp: 50 năm'."
+        subfields:
+          - name: "Loại đất"
+            key: "loai_dat"
+            type: "string"
+            description: "Loại đất có thời hạn sử dụng, ví dụ: 'Đất thổ cư' hoặc 'Đất nông nghiệp'."
+          - name: "Thời hạn"
+            key: "thoi_han"
+            type: "string"
+            description: "Thời hạn sử dụng đất, ví dụ: 'Lâu dài' hoặc 'Đến năm 2070'."
+      - name: "Nguồn gốc sử dụng"
+        key: "nguon_goc_su_dung"
+        type: "array"
+        description: "Danh sách nguồn gốc sử dụng đất cùng diện tích, ví dụ: 'Nhà nước giao: 400 m2', 'Nhận chuyển nhượng: 100 m2'."
+        subfields:
+          - name: "Diện tích"
+            key: "dien_tich"
+            type: "string"
+            description: "Diện tích tương ứng với nguồn gốc sử dụng, ví dụ: '400 m2'."
+          - name: "Nguồn gốc"
+            key: "nguon_goc"
+            type: "string"
+            description: "Nguồn gốc sử dụng đất, ví dụ: 'Nhà nước giao' hoặc 'Nhận chuyển nhượng'."
+  - name: "Nhà ở"
+    key: "nha_o"
+    type: "object"
+    description: "Thông tin về nhà ở trên thửa đất, nếu có. Nếu không có nhà ở, để trống các trường con."
+    subfields:
+      - name: "Tên tài sản"
+        key: "ten_tai_san"
+        type: "string_or_null"
+        description: "Tên của nhà ở, ví dụ: 'Nhà cấp 4' hoặc null nếu không có nhà ở."
+      - name: "Diện tích xây dựng"
+        key: "dien_tich_xay_dung"
+        type: "string_or_null"
+        description: "Diện tích xây dựng của nhà ở, ví dụ: '100 m2' hoặc null nếu không có nhà ở."
+      - name: "Diện tích sử dụng"
+        key: "dien_tich_su_dung"
+        type: "string_or_null"
+        description: "Diện tích sử dụng của nhà ở, ví dụ: '120 m2' hoặc null nếu không có nhà ở."
+      - name: "Số tầng"
+        key: "so_tang"
+        type: "string_or_null"
+        description: "Số tầng của nhà ở, ví dụ: '2 tầng' hoặc null nếu không có nhà ở."
+      - name: "Kết cấu"
+        key: "ket_cau"
+        type: "string_or_null"
+        description: "Kết cấu của nhà ở, ví dụ: 'Bê tông cốt thép' hoặc null nếu không có nhà ở."
+      - name: "Cấp công trình"
+        key: "cap_cong_trinh"
+        type: "string_or_null"
+        description: "Cấp công trình của nhà ở, ví dụ: 'Cấp III' hoặc null nếu không có nhà ở."
+      - name: "Hình thức sở hữu"
+        key: "hinh_thuc_so_huu"
+        type: "string_or_null"
+        description: "Hình thức sở hữu nhà ở, ví dụ: 'Sở hữu riêng' hoặc null nếu không có nhà ở."
+      - name: "Thời hạn sở hữu"
+        key: "thoi_han_so_huu"
+        type: "string_or_null"
+        description: "Thời hạn sở hữu nhà ở, ví dụ: 'Lâu dài' hoặc null nếu không có nhà ở."
+  - name: "Công trình xây dựng khác"
+    key: "cong_trinh_xay_dung_khac"
+    type: "object_or_null"
+    description: "Thông tin về các công trình xây dựng khác trên thửa đất (không phải nhà ở), ví dụ: nhà kho, nhà xưởng. Nếu không có, đặt thành null."
+  - name: "Rừng sản xuất là rừng trồng"
+    key: "rung_san_xuat_la_rung_trong"
+    type: "object_or_null"
+    description: "Thông tin về rừng sản xuất là rừng trồng trên thửa đất, nếu có. Nếu không có, đặt thành null."
+  - name: "Cây lâu năm"
+    key: "cay_lau_nam"
+    type: "object_or_null"
+    description: "Thông tin về cây lâu năm trên thửa đất, nếu có. Nếu không có, đặt thành null."
+  - name: "Ghi chú"
+    key: "ghi_chu"
+    type: "string_or_null"
+    description: "Các ghi chú bổ sung trên giấy chứng nhận, ví dụ: 'Đất đang có tranh chấp' hoặc null nếu không có ghi chú."
+  - name: "Thông tin cấp giấy"
+    key: "thong_tin_cap_giay"
+    type: "object"
+    description: "Thông tin về việc cấp giấy chứng nhận, thường được ghi ở phần cuối của giấy."
+    subfields:
+      - name: "Ngày cấp"
+        key: "ngay_cap"
+        type: "string"
+        description: "Ngày cấp giấy chứng nhận, ví dụ: '15/05/2020'."
+      - name: "Cơ quan cấp"
+        key: "co_quan_cap"
+        type: "string"
+        description: "Cơ quan cấp giấy chứng nhận, ví dụ: 'UBND Huyện XYZ'."
+      - name: "Người ký"
+        key: "nguoi_ky"
+        type: "string"
+        description: "Họ tên người ký giấy chứng nhận, ví dụ: 'Trần Văn B'."
+      - name: "Chức vụ"
+        key: "chuc_vu"
+        type: "string"
+        description: "Chức vụ của người ký, ví dụ: 'Chủ tịch UBND Huyện'."
+      - name: "Số vào sổ GCN"
+        key: "so_vao_so_gcn"
+        type: "string"
+        description: "Số vào sổ cấp giấy chứng nhận, ví dụ: 'GCN 123/2020'."
+      - name: "ID"
+        key: "id"
+        type: "string"
+        description: "Mã định danh của giấy chứng nhận, ví dụ: 'ID123456'."
+
+openai:
+  api_key: ""
+
+dpi: 300

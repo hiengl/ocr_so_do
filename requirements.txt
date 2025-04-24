@@ -1,0 +1,9 @@
+torch==2.7
+torchvision
+pymupdf
+opencv-python
+openai
+streamlit
+pyyaml
+numpy<2
+scikit-image
