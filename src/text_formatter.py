@@ -1,12 +1,17 @@
 from openai import OpenAI
 from typing import List, Dict, Tuple
 import json
-from src.utils import parse_json_from_code_block
+import os
+from .utils import parse_json_from_code_block
+
+from dotenv import load_dotenv
+# Load environment variables from .env file
+load_dotenv()
 
 
 class TextFormatter:
     def __init__(self, config):
-        self.client = OpenAI(api_key=config["openai"]["api_key"])
+        self.client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
         self.fields = config["fields"]
         self.schema = self._build_schema()
 

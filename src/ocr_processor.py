@@ -1,14 +1,13 @@
-import cv2
-import numpy as np
-from models.text_detection.craft_process import CraftDetector
-from models.text_recognition.vietocr_process import Predictor
-from concurrent.futures import ThreadPoolExecutor
-from src.utils import sort_text_by_position
-from pathlib import Path
 import os
 import sys
 from typing import List, Tuple
+from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
 import torch
+
+from .models.text_detection.craft_process import CraftDetector
+from .models.text_recognition.vietocr_process import Predictor
+from .utils import sort_text_by_position
 
 
 # Add the src directory to Python path
